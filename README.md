@@ -9,13 +9,13 @@ Reprend le fonctionnement d'un panneau de chronométrage pour tir à l'arc (feux
 - **Tir** : voyant vert, puis jaune dans les 30 dernières secondes (signal visuel uniquement, pas de bip)
 - **Fin de volée** : voyant rouge + 3 bips
 - **Bascule manuelle** AB ⇄ CD en cas de souci, disponible à tout moment
-- **Télécommande intégrée** : séquence, durée du tir (120s / 90s / 40s / personnalisée), son on/off, démarrer / arrêt anticipé / réinitialiser
+- **Télécommande intégrée** : séquence, durée du tir (120s / 90s / 40s / personnalisée), son on/off, démarrer / fin de volée / arrêt d'urgence / réinitialiser
 
 L'affichage principal (lettres, voyant, chronomètre) occupe tout l'écran et est pensé pour rester lisible à distance. La télécommande reste discrète dans un coin.
 
 ## Utilisation
 
-Ouvrir `l'application(https://ghibau.github.io/chronoarchery)` dans un navigateur — aucune installation, aucune dépendance, aucun serveur nécessaire.
+Ouvrir [l'application](https://ghibau.github.io/chronoarchery/) dans un navigateur — aucune installation, aucune dépendance, aucun serveur nécessaire.
 
 ## Référencement (SEO)
 
