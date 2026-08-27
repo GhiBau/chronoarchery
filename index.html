@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChronoArchery – Panneau de chronométrage gratuit pour le tir à l'arc</title>
-<meta name="description" content="ChronoArchery est un panneau de chronométrage numérique gratuit pour le tir à l'arc, conforme aux signaux du règlement FFTA (rouge/vert/jaune, séquences AB, ABC, AB/CD). Fonctionne dans le navigateur, sur tablette ou smartphone, sans installation.">
-<meta name="keywords" content="chronoarchery, tir à l'arc, chronomètre archerie, panneau de tir, FFTA, feux de tir, minuteur archerie, club de tir à l'arc">
+<meta name="description" content="ChronoArchery est un panneau de chronométrage numérique gratuit pour le tir à l'arc, conforme aux signaux du règlement FFTA (rouge/vert/jaune, séquences AB, ABC, AB/CD, duel 3 flèches). Fonctionne dans le navigateur, sur tablette ou smartphone, sans installation.">
+<meta name="keywords" content="chronoarchery, tir à l'arc, chronomètre archerie, panneau de tir, FFTA, feux de tir, minuteur archerie, club de tir à l'arc, duel">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ghibau.github.io/chronoarchery/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ChronoArchery – Panneau de chronométrage pour le tir à l'arc">
-<meta property="og:description" content="Panneau de chronométrage numérique gratuit pour le tir à l'arc : séquences AB / ABC / AB-CD, signaux rouge-vert-jaune conformes au règlement FFTA, utilisable sur tablette sans installation.">
+<meta property="og:description" content="Panneau de chronométrage numérique gratuit pour le tir à l'arc : séquences AB / ABC / AB-CD / duel 3 flèches, signaux rouge-vert-jaune conformes au règlement FFTA, utilisable sur tablette sans installation.">
 <meta property="og:url" content="https://ghibau.github.io/chronoarchery/">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary">
@@ -34,7 +34,7 @@
     --border:#2a3140;
     --letter-dim:#2a3140;
     --footer-h:40px;
-  --quickbar-h:60px;
+    --quickbar-h:60px;
   }
   *{box-sizing:border-box;}
   .sr-only{
@@ -56,21 +56,24 @@
 
   .site-header{
     flex:0 0 auto;
-    text-align:center;
-    padding:clamp(8px,1.6vh,16px) 12px clamp(4px,1vh,8px);
+    text-align:left;
+    padding:clamp(6px,1.2vh,10px) 16px;
   }
   .site-title{
     margin:0;
+    display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;
     font-family:'IBM Plex Mono',monospace;
     font-weight:700;
-    font-size:clamp(18px,2.6vh,28px);
+    font-size:clamp(16px,2.2vh,24px);
     letter-spacing:0.03em;
   }
   .site-subtitle{
-    margin:2px 0 0;
-    font-size:clamp(13px,1.8vh,17px);
+    margin:0;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:400;
+    font-size:clamp(11px,1.5vh,15px);
     color:var(--ink-dim);
-    letter-spacing:0.02em;
+    letter-spacing:0.01em;
   }
 
   .stage{
@@ -82,7 +85,8 @@
   .light-column{
     flex:0 0 30%;
     max-width:320px;
-    display:flex;align-items:center;justify-content:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:clamp(18px,4vh,44px);
   }
   .traffic-light{
     display:flex;flex-direction:column;
@@ -127,6 +131,7 @@
     color:var(--ink);
     text-shadow:0 0 20px rgba(245,241,232,0.35);
   }
+  .seq-letter.hidden-letter{visibility:hidden;}
 
   .time-wrap{
     flex:1 1 auto;
@@ -166,51 +171,54 @@
     border-bottom-color:var(--ink-dim);
   }
 
-  /* Quick action bar + remote panel */
+  /* Quick action bar (en filigrane : contours discrets, pas de disques pleins comme les feux) */
   .quick-actions{
-    position:fixed;bottom:calc(var(--footer-h) + 14px);right:22px;
     display:flex;align-items:center;gap:10px;
-    z-index:10;
   }
   .icon-btn{
     width:var(--quickbar-h);height:var(--quickbar-h);
-    border-radius:50%;border:none;cursor:pointer;
+    border-radius:50%;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     padding:0;
+    background:rgba(35,42,53,0.4);
+    border:2px solid var(--border);
+    transition:opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   }
-  .icon-btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .icon-btn:disabled{opacity:0.28;cursor:not-allowed;}
+  .icon-btn:not(:disabled):hover{background:rgba(35,42,53,0.7);}
   .icon-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
-  .chip:focus-visible,.btn:focus-visible{
-    outline:2px solid var(--state-green);outline-offset:2px;
-  }
   .icon-settings{
     width:44px;height:44px;
-    background:var(--bg-panel);
-    border:1px solid var(--border);
     color:var(--ink-dim);
     font-size:20px;
+    background:rgba(35,42,53,0.4);
+    border:2px solid var(--border);
   }
-  .icon-green{background:var(--state-green);}
-  .icon-yellow{background:var(--state-yellow);}
-  .icon-red{background:var(--state-red);}
+  .icon-red{border-color:var(--state-red);}
+  .icon-yellow{border-color:var(--state-yellow);}
+  .icon-green{border-color:var(--state-green);}
   .icon-play{
     width:0;height:0;margin-left:5px;
     border-top:13px solid transparent;
     border-bottom:13px solid transparent;
-    border-left:22px solid #0c1410;
+    border-left:22px solid var(--state-green);
   }
   .icon-square{
-    width:20px;height:20px;
-    background:#26200c;
+    width:18px;height:18px;
+    background:var(--state-yellow);
     border-radius:3px;
   }
   .icon-bang{
     font-family:'IBM Plex Mono',monospace;
-    font-weight:700;font-size:26px;color:#1a0d0d;
+    font-weight:700;font-size:26px;color:var(--state-red);
+  }
+
+  .chip:focus-visible,.btn:focus-visible{
+    outline:2px solid var(--state-green);outline-offset:2px;
   }
   .remote{
-    position:fixed;bottom:calc(var(--footer-h) + var(--quickbar-h) + 24px);right:22px;
-    width:280px;max-height:calc(100vh - var(--footer-h) - var(--quickbar-h) - 46px);
+    position:fixed;bottom:calc(var(--footer-h) + 14px);right:22px;
+    width:280px;max-height:calc(100vh - var(--footer-h) - 36px);
     overflow-y:auto;
     background:rgba(27,32,41,0.92);
     backdrop-filter:blur(10px);
@@ -237,6 +245,7 @@
     font-size:20px;line-height:1;cursor:pointer;
   }
   .control-group{margin-bottom:16px;}
+  .control-group.hidden-group{display:none;}
   .control-label{
     display:block;font-size:13px;letter-spacing:0.15em;
     text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px;
@@ -268,18 +277,29 @@
     cursor:pointer;
   }
   .btn:disabled{opacity:0.35;cursor:not-allowed;}
-  .btn-start{background:var(--state-green);color:#0c1410;}
-  .btn-volleyend{background:var(--state-yellow);color:#26200c;}
-  .btn-emergency{background:var(--state-red);color:#1a0d0d;}
   .btn-reset{background:var(--bg-panel-2);color:var(--ink);border:1px solid var(--border);}
   .btn-switch{background:var(--state-yellow);color:#26200c;}
   .switch-row{display:none;margin-top:10px;}
   .switch-row.visible{display:block;}
+  .starter-row{display:none;margin-top:10px;}
+  .starter-row.visible{display:block;}
 
   @media (max-width:640px){
-    .remote,.remote-tab{right:12px;}
+    .remote{right:12px;}
     .remote{width:calc(100vw - 24px);}
-    .light-column{flex-basis:26%;}
+    .light-column{flex-basis:26%;gap:14px;}
+    :root{--quickbar-h:46px;}
+    .icon-settings{width:36px;height:36px;font-size:16px;}
+    .quick-actions{gap:6px;flex-wrap:wrap;justify-content:center;}
+  }
+
+  @media (max-height:480px){
+    :root{--quickbar-h:40px;--footer-h:28px;}
+    .icon-settings{width:30px;height:30px;font-size:13px;}
+    .site-header{padding:3px 14px;}
+    .lamp{width:min(13vh,13vw);height:min(13vh,13vw);}
+    .light-column{gap:8px;}
+    .traffic-light{gap:6px;}
   }
 </style>
 </head>
@@ -287,16 +307,15 @@
 
 <div class="page">
   <header class="site-header">
-    <h1 class="site-title">ChronoArchery</h1>
-    <p class="site-subtitle">Votre chronomètre en ligne pour le tir à l'arc</p>
+    <h1 class="site-title">ChronoArchery <span class="site-subtitle">— Votre chronomètre en ligne pour le tir à l'arc</span></h1>
   </header>
 
   <p class="sr-only">
     ChronoArchery est un panneau de chronométrage numérique gratuit pour le tir à l'arc,
     reprenant les signaux du règlement FFTA (rouge pour la mise en place, vert pour le tir,
-    jaune pour les 30 dernières secondes). Il gère les séquences AB, ABC et AB/CD avec
-    bascule automatique, et intègre une télécommande pour piloter la séquence, la durée
-    du tir et le son directement depuis l'écran.
+    jaune pour les 30 dernières secondes). Il gère les séquences AB, ABC, AB/CD et un mode
+    duel à 3 flèches avec tir alterné, et intègre une télécommande pour piloter la séquence,
+    la durée du tir et le son directement depuis l'écran.
   </p>
 
   <main class="stage" id="stage">
@@ -305,6 +324,12 @@
         <div class="lamp lamp-red" id="lampRed"></div>
         <div class="lamp lamp-yellow" id="lampYellow"></div>
         <div class="lamp lamp-green" id="lampGreen"></div>
+      </div>
+      <div class="quick-actions">
+        <button class="icon-btn icon-settings" id="settingsBtn" aria-expanded="false" aria-controls="remote" aria-label="Réglages">⚙</button>
+        <button class="icon-btn icon-red js-emergency" id="emergencyBtnQuick" disabled aria-label="Arrêt d'urgence"><span class="icon-bang">!</span></button>
+        <button class="icon-btn icon-yellow js-volleyend" id="volleyEndBtnQuick" disabled aria-label="Fin de volée"><span class="icon-square"></span></button>
+        <button class="icon-btn icon-green js-start" id="startBtnQuick" aria-label="Démarrer"><span class="icon-play"></span></button>
       </div>
     </div>
 
@@ -330,13 +355,6 @@
   </footer>
 </div>
 
-<div class="quick-actions">
-  <button class="icon-btn icon-settings" id="settingsBtn" aria-expanded="false" aria-controls="remote" aria-label="Réglages">⚙</button>
-  <button class="icon-btn icon-red js-emergency" id="emergencyBtnQuick" disabled aria-label="Arrêt d'urgence"><span class="icon-bang">!</span></button>
-  <button class="icon-btn icon-yellow js-volleyend" id="volleyEndBtnQuick" disabled aria-label="Fin de volée"><span class="icon-square"></span></button>
-  <button class="icon-btn icon-green js-start" id="startBtnQuick" aria-label="Démarrer"><span class="icon-play"></span></button>
-</div>
-
 <aside class="remote" id="remote" aria-label="Télécommande">
   <button class="remote-close" id="remoteClose" aria-label="Fermer la télécommande">✕</button>
   <h2>Télécommande</h2>
@@ -344,16 +362,24 @@
   <div class="control-group">
     <span class="control-label">Séquence</span>
     <div class="chip-row" id="sequenceChips">
-      <button class="chip active" data-seq="AB">AB</button>
+      <button class="chip" data-seq="AB">AB</button>
       <button class="chip" data-seq="ABC">ABC</button>
-      <button class="chip" data-seq="ABCD">AB/CD</button>
+      <button class="chip active" data-seq="ABCD">AB/CD</button>
+      <button class="chip" data-seq="DUEL">Duel 3 flèches</button>
     </div>
-    <div class="switch-row" id="switchRow">
+    <div class="switch-row visible" id="switchRow">
       <button class="btn btn-switch" id="switchBtn">Forcer bascule AB ⇄ CD</button>
+    </div>
+    <div class="starter-row" id="starterRow">
+      <span class="control-label" style="margin-top:10px;">Qui commence ?</span>
+      <div class="chip-row" id="starterChips">
+        <button class="chip active" data-starter="A">A commence</button>
+        <button class="chip" data-starter="B">B commence</button>
+      </div>
     </div>
   </div>
 
-  <div class="control-group">
+  <div class="control-group" id="durationGroup">
     <span class="control-label">Durée</span>
     <div class="chip-row" id="durationChips">
       <button class="chip active" data-duration="120">120s</button>
@@ -387,6 +413,7 @@
   const remoteClose = document.getElementById('remoteClose');
   const sequenceChips = document.querySelectorAll('#sequenceChips .chip');
   const durationChips = document.querySelectorAll('#durationChips .chip');
+  const durationGroup = document.getElementById('durationGroup');
   const customDurationInput = document.getElementById('customDuration');
   const soundToggle = document.getElementById('soundToggle');
   const startBtns = document.querySelectorAll('.js-start');
@@ -395,19 +422,28 @@
   const resetBtn = document.getElementById('resetBtn');
   const switchRow = document.getElementById('switchRow');
   const switchBtn = document.getElementById('switchBtn');
+  const starterRow = document.getElementById('starterRow');
+  const starterChips = document.querySelectorAll('#starterChips .chip');
 
   const APPROACH_DURATION = 10;
+  const DUEL_SHOT_DURATION = 20;
+  const DUEL_TOTAL_SHOTS = 6; // 3 flèches chacun, tir alterné
   const BEEP_DURATION = 1.0;
+  const BEEP_GAP = 0.1;
   let totalDuration = 120;
   let remaining = 120;
-  let mode = 'AB';          // AB | ABC | ABCD
+  let mode = 'ABCD';        // AB | ABC | ABCD | DUEL
   let side = 'AB';          // meaningful when mode === 'ABCD'
   let nextABCDStart = 'AB'; // alternates each completed AB/CD cycle
   let abcdLeg = 1;          // 1 = first half, 2 = return half (ABCD mode only)
+  let duelStarter = 'A';    // qui commence le duel
+  let duelStep = 0;         // 0..5 pendant un duel
   let soundOn = true;
   let timerId = null;
   let phase = 'ready'; // ready | approach | run | warn | stop
   let audioCtx = null;
+
+  const WHISTLE_FREQ = 2200;
 
   function ensureAudio(){
     if(!audioCtx){
@@ -416,22 +452,41 @@
     return audioCtx;
   }
 
+  function playWhistle(ctx, freq, startTime){
+    const attack = 0.008;
+    const release = 0.05;
+    const sustainEnd = startTime + BEEP_DURATION - release;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = freq;
+    filter.Q.value = 7;
+    filter.connect(ctx.destination);
+
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0, startTime);
+    masterGain.gain.linearRampToValueAtTime(0.5, startTime + attack);
+    masterGain.gain.setValueAtTime(0.5, sustainEnd);
+    masterGain.gain.linearRampToValueAtTime(0, startTime + BEEP_DURATION);
+    masterGain.connect(filter);
+
+    [freq, freq * 1.03].forEach(f => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = f;
+      osc.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + BEEP_DURATION + 0.02);
+    });
+  }
+
   function beep(freq, count){
     if(!soundOn) return;
     const ctx = ensureAudio();
     let t = ctx.currentTime;
     for(let i=0;i<count;i++){
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + BEEP_DURATION);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + BEEP_DURATION + 0.02);
-      t += BEEP_DURATION + 0.25;
+      playWhistle(ctx, freq, t);
+      t += BEEP_DURATION + BEEP_GAP;
     }
   }
 
@@ -439,16 +494,28 @@
     return String(Math.max(0, Math.ceil(s)));
   }
 
+  function otherArcher(a){ return a === 'A' ? 'B' : 'A'; }
+  function duelShooterAt(step){
+    return step % 2 === 0 ? duelStarter : otherArcher(duelStarter);
+  }
+
   function activeLetters(){
     if(mode === 'AB') return ['A','B'];
     if(mode === 'ABC') return ['A','B','C'];
-    return side === 'AB' ? ['A','B'] : ['C','D'];
+    if(mode === 'ABCD') return side === 'AB' ? ['A','B'] : ['C','D'];
+    if(mode === 'DUEL'){
+      if(phase === 'approach' || phase === 'ready') return [duelStarter];
+      return [duelShooterAt(duelStep)];
+    }
+    return [];
   }
 
   function updateLetters(){
     const active = activeLetters();
     letterEls.forEach(el => {
-      el.classList.toggle('lit', active.includes(el.dataset.letter));
+      const letter = el.dataset.letter;
+      el.classList.toggle('lit', active.includes(letter));
+      el.classList.toggle('hidden-letter', mode === 'DUEL' && (letter === 'C' || letter === 'D'));
     });
   }
 
@@ -466,6 +533,7 @@
     if(newPhase === 'warn') lampYellow.classList.add('on');
     timeDisplay.classList.toggle('pulse', newPhase === 'stop');
     phase = newPhase;
+    updateLetters();
 
     const active = (newPhase === 'approach' || newPhase === 'run' || newPhase === 'warn');
     startBtns.forEach(b => b.disabled = active);
@@ -485,7 +553,18 @@
       updateLetters();
       remaining = APPROACH_DURATION;
       setPhase('approach');
-      beep(660, 2);
+      beep(WHISTLE_FREQ, 2);
+    } else {
+      finishSequence();
+    }
+  }
+
+  function handleDuelZero(){
+    if(duelStep < DUEL_TOTAL_SHOTS - 1){
+      duelStep++;
+      remaining = DUEL_SHOT_DURATION;
+      setPhase('run');
+      beep(WHISTLE_FREQ, 1);
     } else {
       finishSequence();
     }
@@ -495,9 +574,14 @@
     if(phase === 'approach'){
       remaining -= 0.1;
       if(remaining <= 0){
-        remaining = totalDuration;
+        if(mode === 'DUEL'){
+          duelStep = 0;
+          remaining = DUEL_SHOT_DURATION;
+        } else {
+          remaining = totalDuration;
+        }
         setPhase('run');
-        beep(880, 1);
+        beep(WHISTLE_FREQ, 1);
       }
       updateDisplay();
       return;
@@ -507,10 +591,10 @@
     if(remaining <= 0){
       remaining = 0;
       updateDisplay();
-      handleZero();
+      if(mode === 'DUEL') handleDuelZero(); else handleZero();
       return;
     }
-    if(phase === 'run' && remaining <= 30){
+    if(mode !== 'DUEL' && phase === 'run' && remaining <= 30){
       setPhase('warn');
     }
     updateDisplay();
@@ -520,7 +604,7 @@
     clearInterval(timerId);
     timerId = null;
     setPhase('stop');
-    beep(220, 3);
+    beep(WHISTLE_FREQ, 3);
     if(mode === 'ABCD'){
       nextABCDStart = nextABCDStart === 'AB' ? 'CD' : 'AB';
     }
@@ -529,6 +613,7 @@
   function setControlsDisabled(disabled){
     sequenceChips.forEach(c => c.disabled = disabled);
     durationChips.forEach(c => c.disabled = disabled);
+    starterChips.forEach(c => c.disabled = disabled);
   }
 
   function start(){
@@ -536,11 +621,10 @@
     if(mode === 'ABCD'){
       side = nextABCDStart;
       abcdLeg = 1;
-      updateLetters();
     }
     remaining = APPROACH_DURATION;
     setPhase('approach');
-    beep(660, 2);
+    beep(WHISTLE_FREQ, 2);
     updateDisplay();
     timerId = setInterval(tick, 100);
   }
@@ -549,7 +633,7 @@
     if(!timerId) return;
     remaining = 0;
     updateDisplay();
-    handleZero();
+    if(mode === 'DUEL') handleDuelZero(); else handleZero();
   }
 
   function emergencyStop(){
@@ -557,14 +641,15 @@
     clearInterval(timerId);
     timerId = null;
     setPhase('stop');
-    beep(220, 3);
+    beep(WHISTLE_FREQ, 3);
   }
 
   function reset(){
     clearInterval(timerId);
     timerId = null;
-    remaining = totalDuration;
+    remaining = (mode === 'DUEL') ? DUEL_SHOT_DURATION : totalDuration;
     abcdLeg = 1;
+    duelStep = 0;
     setPhase('ready');
     syncReadyPreview();
     updateDisplay();
@@ -577,8 +662,22 @@
       mode = chip.dataset.seq;
       nextABCDStart = 'AB';
       abcdLeg = 1;
+      duelStep = 0;
       switchRow.classList.toggle('visible', mode === 'ABCD');
+      starterRow.classList.toggle('visible', mode === 'DUEL');
+      durationGroup.classList.toggle('hidden-group', mode === 'DUEL');
+      remaining = (mode === 'DUEL') ? DUEL_SHOT_DURATION : totalDuration;
       syncReadyPreview();
+      updateDisplay();
+    });
+  });
+
+  starterChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      starterChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      duelStarter = chip.dataset.starter;
+      updateLetters();
     });
   });
 
