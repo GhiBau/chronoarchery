@@ -15,39 +15,11 @@ L'affichage principal (lettres, voyant, chronomètre) occupe tout l'écran et es
 
 ## Utilisation
 
-Ouvrir `index.html` dans un navigateur — aucune installation, aucune dépendance, aucun serveur nécessaire.
-
-Une fois hébergé (voir ci-dessous), il suffit d'ouvrir l'URL sur la tablette du pas de tir.
-
-## Renommage depuis « Chronotir »
-
-Ce projet s'appelait auparavant Chronotir — nom qui s'est avéré être une marque déposée par une entreprise tierce (afficheurs pour tir à l'arc). Le projet a donc été renommé **ChronoArchery**.
-
-Si tu avais déjà un repo `chronotir` sur GitHub :
-
-1. Dans **Settings → General** du repo existant, renomme-le en `chronoarchery`. GitHub redirige automatiquement l'ancienne URL pendant un moment, et l'URL Pages devient `https://ghibau.github.io/chronoarchery/`.
-2. Dans **Google Search Console**, l'ancienne propriété `chronotir` ne suit pas le renommage : il faut ajouter la nouvelle URL comme **nouvelle propriété**, la revérifier (nouvelle balise `google-site-verification`), et soumettre à nouveau `sitemap.xml`.
-
-## Hébergement sur GitHub Pages
-
-1. Créer un nouveau repository GitHub (public suffit) et y pousser ce contenu.
-2. Dans **Settings → Pages**, choisir **Deploy from a branch**, sélectionner la branche `main` et le dossier `/ (root)`.
-3. GitHub fournit une URL du type `https://<utilisateur>.github.io/<nom-du-repo>/`.
-4. Ouvrir cette URL sur la tablette et l'ajouter à l'écran d'accueil pour un accès direct en plein écran.
+Ouvrir `l'application(https://ghibau.github.io/chronoarchery)` dans un navigateur — aucune installation, aucune dépendance, aucun serveur nécessaire.
 
 ## Référencement (SEO)
 
-Le repo est prêt pour être indexé par les moteurs de recherche :
-
-- Balises `<title>`, description, mots-clés et Open Graph dans `index.html`
-- `robots.txt` autorisant explicitement l'exploration
-- `sitemap.xml` déclarant la page
-
-**Après la mise en ligne**, il ne reste qu'une étape :
-
-1. **Soumettre le site à Google Search Console** (search.google.com/search-console) : ajouter la propriété `https://ghibau.github.io/chronoarchery/`, la vérifier (balise HTML ou fichier), puis soumettre `sitemap.xml`. C'est ce qui accélère vraiment la découverte — sans ça, l'indexation naturelle peut prendre plusieurs semaines.
-
-Un lien depuis le site du club ou d'un forum FFTA (backlink) aide aussi beaucoup plus qu'un réglage technique pour être trouvé.
+Un lien depuis le site du club ou d'un forum FFTA (backlink) aide au référencement pour que l'outil soit trouvé.
 
 ## Licence
 
