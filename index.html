@@ -24,14 +24,16 @@
     --bg-deep:#12161c;
     --bg-panel:#1b2029;
     --bg-panel-2:#232a35;
-    --state-idle:#2a3140;
     --state-red:#c24b4b;
     --state-green:#3f9b6f;
     --state-yellow:#d9b23f;
+    --lamp-off:#232a35;
     --ink:#f5f1e8;
     --ink-dim:#8b92a0;
+    --ink-faint:#5b6270;
     --border:#2a3140;
     --letter-dim:#2a3140;
+    --footer-h:40px;
   }
   *{box-sizing:border-box;}
   .sr-only{
@@ -46,47 +48,95 @@
     font-family:'Barlow Condensed',sans-serif;
     overflow:hidden;
   }
-  .stage{
-    position:relative;
-    width:100%;height:100vh;
+  .page{
     display:flex;flex-direction:column;
-    padding:0;
-    gap:0;
-  }
-  .display-section{
-    flex:1 1 0;
-    min-height:0;
-    display:flex;align-items:center;justify-content:center;
+    width:100%;height:100vh;
   }
 
+  .site-header{
+    flex:0 0 auto;
+    text-align:center;
+    padding:clamp(8px,1.6vh,16px) 12px clamp(4px,1vh,8px);
+  }
+  .site-title{
+    margin:0;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:clamp(18px,2.6vh,28px);
+    letter-spacing:0.03em;
+  }
+  .site-subtitle{
+    margin:2px 0 0;
+    font-size:clamp(13px,1.8vh,17px);
+    color:var(--ink-dim);
+    letter-spacing:0.02em;
+  }
+
+  .stage{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;flex-direction:row;
+  }
+
+  .light-column{
+    flex:0 0 30%;
+    max-width:320px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .traffic-light{
+    display:flex;flex-direction:column;
+    gap:clamp(14px,3vh,32px);
+  }
+  .lamp{
+    width:min(18vh,18vw);
+    height:min(18vh,18vw);
+    border-radius:50%;
+    background:var(--lamp-off);
+    opacity:0.35;
+    transition:opacity 0.3s ease, box-shadow 0.3s ease;
+  }
+  .lamp-red{background:var(--state-red);}
+  .lamp-yellow{background:var(--state-yellow);}
+  .lamp-green{background:var(--state-green);}
+  .lamp.on{opacity:1;}
+  .lamp-red.on{box-shadow:0 0 min(6vh,60px) var(--state-red);}
+  .lamp-yellow.on{box-shadow:0 0 min(6vh,60px) var(--state-yellow);}
+  .lamp-green.on{box-shadow:0 0 min(6vh,60px) var(--state-green);}
+
+  .display-column{
+    flex:1 1 auto;
+    min-width:0;
+    display:flex;flex-direction:column;
+    align-items:center;
+  }
   .letters-row{
-    display:flex;gap:clamp(14px,4vw,60px);
+    flex:0 0 auto;
+    display:flex;gap:clamp(10px,2.5vw,36px);
+    padding-top:clamp(10px,3vh,32px);
   }
   .seq-letter{
     font-family:'IBM Plex Mono',monospace;
     font-weight:700;
-    font-size:min(26vh,20vw);
+    font-size:min(15vh,11vw);
     line-height:1;
     color:var(--letter-dim);
     transition:color 0.3s ease, text-shadow 0.3s ease;
   }
   .seq-letter.lit{
     color:var(--ink);
-    text-shadow:0 0 24px rgba(245,241,232,0.35);
+    text-shadow:0 0 20px rgba(245,241,232,0.35);
   }
 
-  .phase-light{
-    width:min(26vh,30vw);
-    height:min(26vh,30vw);
-    border-radius:14%;
-    background:var(--state-idle);
-    transition:background 0.35s ease;
+  .time-wrap{
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    display:flex;align-items:center;justify-content:center;
   }
-
   .time-display{
     font-family:'IBM Plex Mono',monospace;
     font-weight:600;
-    font-size:min(32vh,45vw);
+    font-size:min(52vh,32vw);
     line-height:1;
     font-variant-numeric:tabular-nums;
     color:var(--ink);
@@ -97,13 +147,27 @@
     .time-display.pulse{animation:none;}
   }
 
-  .phase-light.state-approach,.phase-light.state-stop{background:var(--state-red);}
-  .phase-light.state-run{background:var(--state-green);}
-  .phase-light.state-warn{background:var(--state-yellow);}
+  .site-footer{
+    flex:0 0 var(--footer-h);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px;
+    font-size:clamp(11px,1.4vh,13px);
+    color:var(--ink-faint);
+    border-top:1px solid var(--border);
+  }
+  .site-footer a{
+    color:var(--ink-dim);
+    text-decoration:none;
+    border-bottom:1px solid var(--border);
+  }
+  .site-footer a:hover,.site-footer a:focus-visible{
+    color:var(--ink);
+    border-bottom-color:var(--ink-dim);
+  }
 
   /* Remote tab + panel */
   .remote-tab{
-    position:fixed;bottom:22px;right:22px;
+    position:fixed;bottom:calc(var(--footer-h) + 14px);right:22px;
     background:var(--bg-panel);
     color:var(--ink);
     border:1px solid var(--border);
@@ -119,8 +183,8 @@
     outline:2px solid var(--state-green);outline-offset:2px;
   }
   .remote{
-    position:fixed;bottom:22px;right:22px;
-    width:280px;max-height:calc(100vh - 44px);
+    position:fixed;bottom:calc(var(--footer-h) + 14px);right:22px;
+    width:280px;max-height:calc(100vh - var(--footer-h) - 36px);
     overflow-y:auto;
     background:rgba(27,32,41,0.92);
     backdrop-filter:blur(10px);
@@ -179,46 +243,65 @@
   }
   .btn:disabled{opacity:0.35;cursor:not-allowed;}
   .btn-start{background:var(--state-green);color:#0c1410;}
-  .btn-stop{background:var(--state-red);color:#1a0d0d;}
+  .btn-volleyend{background:var(--state-yellow);color:#26200c;}
+  .btn-emergency{background:var(--state-red);color:#1a0d0d;}
   .btn-reset{background:var(--bg-panel-2);color:var(--ink);border:1px solid var(--border);}
   .btn-switch{background:var(--state-yellow);color:#26200c;}
   .switch-row{display:none;margin-top:10px;}
   .switch-row.visible{display:block;}
 
   @media (max-width:640px){
-    .remote,.remote-tab{right:12px;bottom:12px;}
+    .remote,.remote-tab{right:12px;}
     .remote{width:calc(100vw - 24px);}
+    .light-column{flex-basis:26%;}
   }
 </style>
 </head>
 <body>
 
-<h1 class="sr-only">ChronoArchery — panneau de chronométrage pour le tir à l'arc</h1>
-<p class="sr-only">
-  ChronoArchery est un panneau de chronométrage numérique gratuit pour le tir à l'arc,
-  reprenant les signaux du règlement FFTA (rouge pour la mise en place, vert pour le tir,
-  jaune pour les 30 dernières secondes). Il gère les séquences AB, ABC et AB/CD avec
-  bascule automatique, et intègre une télécommande pour piloter la séquence, la durée
-  du tir et le son directement depuis l'écran.
-</p>
+<div class="page">
+  <header class="site-header">
+    <h1 class="site-title">ChronoArchery</h1>
+    <p class="site-subtitle">Votre chronomètre en ligne pour le tir à l'arc</p>
+  </header>
 
-<div class="stage" id="stage">
-  <div class="display-section">
-    <div class="letters-row" id="lettersRow">
-      <span class="seq-letter" data-letter="A">A</span>
-      <span class="seq-letter" data-letter="B">B</span>
-      <span class="seq-letter" data-letter="C">C</span>
-      <span class="seq-letter" data-letter="D">D</span>
+  <p class="sr-only">
+    ChronoArchery est un panneau de chronométrage numérique gratuit pour le tir à l'arc,
+    reprenant les signaux du règlement FFTA (rouge pour la mise en place, vert pour le tir,
+    jaune pour les 30 dernières secondes). Il gère les séquences AB, ABC et AB/CD avec
+    bascule automatique, et intègre une télécommande pour piloter la séquence, la durée
+    du tir et le son directement depuis l'écran.
+  </p>
+
+  <main class="stage" id="stage">
+    <div class="light-column">
+      <div class="traffic-light" id="trafficLight">
+        <div class="lamp lamp-red" id="lampRed"></div>
+        <div class="lamp lamp-yellow" id="lampYellow"></div>
+        <div class="lamp lamp-green" id="lampGreen"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="display-section">
-    <div class="phase-light" id="phaseLight"></div>
-  </div>
+    <div class="display-column">
+      <div class="letters-row" id="lettersRow">
+        <span class="seq-letter" data-letter="A">A</span>
+        <span class="seq-letter" data-letter="B">B</span>
+        <span class="seq-letter" data-letter="C">C</span>
+        <span class="seq-letter" data-letter="D">D</span>
+      </div>
+      <div class="time-wrap">
+        <div class="time-display" id="timeDisplay">120</div>
+      </div>
+    </div>
+  </main>
 
-  <div class="display-section">
-    <div class="time-display" id="timeDisplay">120</div>
-  </div>
+  <footer class="site-footer">
+    <span>Dernière mise à jour : 27 août 2026</span>
+    <span>
+      <a href="https://github.com/GhiBau/chronoarchery/discussions" target="_blank" rel="noopener">💬 Une question ?</a>
+      · Éditeur : Ghislain Baudichaud
+    </span>
+  </footer>
 </div>
 
 <button class="remote-tab" id="remoteTab" aria-expanded="false" aria-controls="remote">
@@ -259,14 +342,17 @@
 
   <div class="button-row">
     <button class="btn btn-start" id="startBtn">Démarrer</button>
-    <button class="btn btn-stop" id="stopBtn" disabled>Arrêt anticipé</button>
+    <button class="btn btn-volleyend" id="volleyEndBtn" disabled>Fin de volée</button>
+    <button class="btn btn-emergency" id="emergencyBtn" disabled>Arrêt d'urgence</button>
     <button class="btn btn-reset" id="resetBtn">Réinitialiser</button>
   </div>
 </aside>
 
 <script>
 (function(){
-  const phaseLight = document.getElementById('phaseLight');
+  const lampRed = document.getElementById('lampRed');
+  const lampYellow = document.getElementById('lampYellow');
+  const lampGreen = document.getElementById('lampGreen');
   const timeDisplay = document.getElementById('timeDisplay');
   const letterEls = document.querySelectorAll('.seq-letter');
 
@@ -278,7 +364,8 @@
   const customDurationInput = document.getElementById('customDuration');
   const soundToggle = document.getElementById('soundToggle');
   const startBtn = document.getElementById('startBtn');
-  const stopBtn = document.getElementById('stopBtn');
+  const volleyEndBtn = document.getElementById('volleyEndBtn');
+  const emergencyBtn = document.getElementById('emergencyBtn');
   const resetBtn = document.getElementById('resetBtn');
   const switchRow = document.getElementById('switchRow');
   const switchBtn = document.getElementById('switchBtn');
@@ -345,14 +432,37 @@
   }
 
   function setPhase(newPhase){
-    phaseLight.classList.remove('state-approach','state-run','state-warn','state-stop');
-    if(newPhase !== 'ready') phaseLight.classList.add('state-' + newPhase);
+    lampRed.classList.remove('on');
+    lampYellow.classList.remove('on');
+    lampGreen.classList.remove('on');
+    if(newPhase === 'approach' || newPhase === 'stop') lampRed.classList.add('on');
+    if(newPhase === 'run') lampGreen.classList.add('on');
+    if(newPhase === 'warn') lampYellow.classList.add('on');
     timeDisplay.classList.toggle('pulse', newPhase === 'stop');
     phase = newPhase;
+
+    const active = (newPhase === 'approach' || newPhase === 'run' || newPhase === 'warn');
+    startBtn.disabled = active;
+    emergencyBtn.disabled = !active;
+    volleyEndBtn.disabled = !(newPhase === 'run' || newPhase === 'warn');
+    setControlsDisabled(active);
   }
 
   function updateDisplay(){
     timeDisplay.textContent = formatTime(remaining);
+  }
+
+  function handleZero(){
+    if(mode === 'ABCD' && abcdLeg === 1){
+      abcdLeg = 2;
+      side = side === 'AB' ? 'CD' : 'AB';
+      updateLetters();
+      remaining = APPROACH_DURATION;
+      setPhase('approach');
+      beep(660, 2);
+    } else {
+      finishSequence();
+    }
   }
 
   function tick(){
@@ -371,16 +481,7 @@
     if(remaining <= 0){
       remaining = 0;
       updateDisplay();
-      if(mode === 'ABCD' && abcdLeg === 1){
-        abcdLeg = 2;
-        side = side === 'AB' ? 'CD' : 'AB';
-        updateLetters();
-        remaining = APPROACH_DURATION;
-        setPhase('approach');
-        beep(660, 2);
-        return;
-      }
-      finishSequence();
+      handleZero();
       return;
     }
     if(phase === 'run' && remaining <= 30){
@@ -397,9 +498,6 @@
     if(mode === 'ABCD'){
       nextABCDStart = nextABCDStart === 'AB' ? 'CD' : 'AB';
     }
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    setControlsDisabled(false);
   }
 
   function setControlsDisabled(disabled){
@@ -418,21 +516,22 @@
     setPhase('approach');
     beep(660, 2);
     updateDisplay();
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-    setControlsDisabled(true);
     timerId = setInterval(tick, 100);
   }
 
-  function stopEarly(){
+  function volleyEnd(){
+    if(!timerId) return;
+    remaining = 0;
+    updateDisplay();
+    handleZero();
+  }
+
+  function emergencyStop(){
     if(!timerId) return;
     clearInterval(timerId);
     timerId = null;
     setPhase('stop');
-    beep(440, 2);
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    setControlsDisabled(false);
+    beep(220, 3);
   }
 
   function reset(){
@@ -443,9 +542,6 @@
     setPhase('ready');
     syncReadyPreview();
     updateDisplay();
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    setControlsDisabled(false);
   }
 
   sequenceChips.forEach(chip => {
@@ -498,7 +594,8 @@
   });
 
   startBtn.addEventListener('click', start);
-  stopBtn.addEventListener('click', stopEarly);
+  volleyEndBtn.addEventListener('click', volleyEnd);
+  emergencyBtn.addEventListener('click', emergencyStop);
   resetBtn.addEventListener('click', reset);
 
   function openRemote(){
@@ -515,6 +612,7 @@
   remoteClose.addEventListener('click', closeRemote);
 
   // Init
+  setPhase('ready');
   syncReadyPreview();
   updateDisplay();
 })();
