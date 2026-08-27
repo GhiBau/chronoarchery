@@ -13,6 +13,8 @@ Reprend le fonctionnement d'un panneau de chronométrage pour tir à l'arc (feux
 
 L'affichage principal (lettres, voyant, chronomètre) occupe tout l'écran et est pensé pour rester lisible à distance. La télécommande reste discrète dans un coin.
 
+**Ce n'est pas un outil officiel et adapté aux compétitions. C'est un outil d'entraînement, tant pour les archers que pour les candidats arbitres.**
+
 ## Utilisation
 
 Ouvrir [l'application](https://ghibau.github.io/chronoarchery/) dans un navigateur — aucune installation, aucune dépendance, aucun serveur nécessaire.
