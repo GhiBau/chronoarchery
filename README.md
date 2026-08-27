@@ -4,7 +4,7 @@ Panneau de chronométrage numérique pour le tir à l'arc, utilisable sur tablet
 
 Reprend le fonctionnement d'un panneau de chronométrage pour tir à l'arc (feux et signaux sonores) tel que décrit dans le règlement FFTA (art. B.5.4), avec :
 
-- **Séquences** : AB, ABC, ou AB/CD (bascule automatique entre AB et CD, avec alternance de la lettre de départ à chaque volée suivante)
+- **Séquences** : AB, ABC, ou AB/CD (bascule automatique entre AB et CD, avec alternance de la lettre de départ à chaque volée suivante) ou Duel
 - **Mise en place** : 10 secondes signalées en rouge avant chaque volée
 - **Tir** : voyant vert, puis jaune dans les 30 dernières secondes (signal visuel uniquement, pas de bip)
 - **Fin de volée** : voyant rouge + 3 bips
