@@ -26,6 +26,20 @@ Une fois hébergé (voir ci-dessous), il suffit d'ouvrir l'URL sur la tablette d
 3. GitHub fournit une URL du type `https://<utilisateur>.github.io/<nom-du-repo>/`.
 4. Ouvrir cette URL sur la tablette et l'ajouter à l'écran d'accueil pour un accès direct en plein écran.
 
+## Référencement (SEO)
+
+Le repo est prêt pour être indexé par les moteurs de recherche :
+
+- Balises `<title>`, description, mots-clés et Open Graph dans `index.html`
+- `robots.txt` autorisant explicitement l'exploration
+- `sitemap.xml` déclarant la page
+
+**Après la mise en ligne**, il ne reste qu'une étape :
+
+1. **Soumettre le site à Google Search Console** (search.google.com/search-console) : ajouter la propriété `https://ghibau.github.io/chronotir/`, la vérifier (balise HTML ou fichier), puis soumettre `sitemap.xml`. C'est ce qui accélère vraiment la découverte — sans ça, l'indexation naturelle peut prendre plusieurs semaines.
+
+Un lien depuis le site du club ou d'un forum FFTA (backlink) aide aussi beaucoup plus qu'un réglage technique pour être trouvé.
+
 ## Licence
 
 MIT — libre d'utilisation, de modification et de partage pour les clubs de tir à l'arc.

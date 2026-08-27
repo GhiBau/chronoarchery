@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ghibau.github.io/chronotir/sitemap.xml
