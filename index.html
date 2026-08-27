@@ -34,6 +34,7 @@
     --border:#2a3140;
     --letter-dim:#2a3140;
     --footer-h:40px;
+  --quickbar-h:60px;
   }
   *{box-sizing:border-box;}
   .sr-only{
@@ -165,26 +166,51 @@
     border-bottom-color:var(--ink-dim);
   }
 
-  /* Remote tab + panel */
-  .remote-tab{
+  /* Quick action bar + remote panel */
+  .quick-actions{
     position:fixed;bottom:calc(var(--footer-h) + 14px);right:22px;
-    background:var(--bg-panel);
-    color:var(--ink);
-    border:1px solid var(--border);
-    border-radius:999px;
-    padding:10px 20px;
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:16px;letter-spacing:0.12em;text-transform:uppercase;
-    cursor:pointer;
+    display:flex;align-items:center;gap:10px;
     z-index:10;
-    display:flex;align-items:center;gap:8px;
   }
-  .remote-tab:focus-visible,.chip:focus-visible,.btn:focus-visible{
+  .icon-btn{
+    width:var(--quickbar-h);height:var(--quickbar-h);
+    border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+  }
+  .icon-btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .icon-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  .chip:focus-visible,.btn:focus-visible{
     outline:2px solid var(--state-green);outline-offset:2px;
   }
+  .icon-settings{
+    width:44px;height:44px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    color:var(--ink-dim);
+    font-size:20px;
+  }
+  .icon-green{background:var(--state-green);}
+  .icon-yellow{background:var(--state-yellow);}
+  .icon-red{background:var(--state-red);}
+  .icon-play{
+    width:0;height:0;margin-left:5px;
+    border-top:13px solid transparent;
+    border-bottom:13px solid transparent;
+    border-left:22px solid #0c1410;
+  }
+  .icon-square{
+    width:20px;height:20px;
+    background:#26200c;
+    border-radius:3px;
+  }
+  .icon-bang{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;font-size:26px;color:#1a0d0d;
+  }
   .remote{
-    position:fixed;bottom:calc(var(--footer-h) + 14px);right:22px;
-    width:280px;max-height:calc(100vh - var(--footer-h) - 36px);
+    position:fixed;bottom:calc(var(--footer-h) + var(--quickbar-h) + 24px);right:22px;
+    width:280px;max-height:calc(100vh - var(--footer-h) - var(--quickbar-h) - 46px);
     overflow-y:auto;
     background:rgba(27,32,41,0.92);
     backdrop-filter:blur(10px);
@@ -304,9 +330,12 @@
   </footer>
 </div>
 
-<button class="remote-tab" id="remoteTab" aria-expanded="false" aria-controls="remote">
-  🎛 Télécommande
-</button>
+<div class="quick-actions">
+  <button class="icon-btn icon-settings" id="settingsBtn" aria-expanded="false" aria-controls="remote" aria-label="Réglages">⚙</button>
+  <button class="icon-btn icon-red js-emergency" id="emergencyBtnQuick" disabled aria-label="Arrêt d'urgence"><span class="icon-bang">!</span></button>
+  <button class="icon-btn icon-yellow js-volleyend" id="volleyEndBtnQuick" disabled aria-label="Fin de volée"><span class="icon-square"></span></button>
+  <button class="icon-btn icon-green js-start" id="startBtnQuick" aria-label="Démarrer"><span class="icon-play"></span></button>
+</div>
 
 <aside class="remote" id="remote" aria-label="Télécommande">
   <button class="remote-close" id="remoteClose" aria-label="Fermer la télécommande">✕</button>
@@ -341,9 +370,6 @@
   </div>
 
   <div class="button-row">
-    <button class="btn btn-start" id="startBtn">Démarrer</button>
-    <button class="btn btn-volleyend" id="volleyEndBtn" disabled>Fin de volée</button>
-    <button class="btn btn-emergency" id="emergencyBtn" disabled>Arrêt d'urgence</button>
     <button class="btn btn-reset" id="resetBtn">Réinitialiser</button>
   </div>
 </aside>
@@ -356,16 +382,16 @@
   const timeDisplay = document.getElementById('timeDisplay');
   const letterEls = document.querySelectorAll('.seq-letter');
 
-  const remoteTab = document.getElementById('remoteTab');
+  const settingsBtn = document.getElementById('settingsBtn');
   const remote = document.getElementById('remote');
   const remoteClose = document.getElementById('remoteClose');
   const sequenceChips = document.querySelectorAll('#sequenceChips .chip');
   const durationChips = document.querySelectorAll('#durationChips .chip');
   const customDurationInput = document.getElementById('customDuration');
   const soundToggle = document.getElementById('soundToggle');
-  const startBtn = document.getElementById('startBtn');
-  const volleyEndBtn = document.getElementById('volleyEndBtn');
-  const emergencyBtn = document.getElementById('emergencyBtn');
+  const startBtns = document.querySelectorAll('.js-start');
+  const volleyEndBtns = document.querySelectorAll('.js-volleyend');
+  const emergencyBtns = document.querySelectorAll('.js-emergency');
   const resetBtn = document.getElementById('resetBtn');
   const switchRow = document.getElementById('switchRow');
   const switchBtn = document.getElementById('switchBtn');
@@ -442,9 +468,9 @@
     phase = newPhase;
 
     const active = (newPhase === 'approach' || newPhase === 'run' || newPhase === 'warn');
-    startBtn.disabled = active;
-    emergencyBtn.disabled = !active;
-    volleyEndBtn.disabled = !(newPhase === 'run' || newPhase === 'warn');
+    startBtns.forEach(b => b.disabled = active);
+    emergencyBtns.forEach(b => b.disabled = !active);
+    volleyEndBtns.forEach(b => b.disabled = !(newPhase === 'run' || newPhase === 'warn'));
     setControlsDisabled(active);
   }
 
@@ -593,22 +619,22 @@
     soundToggle.textContent = soundOn ? '🔊 Bips activés' : '🔇 Bips coupés';
   });
 
-  startBtn.addEventListener('click', start);
-  volleyEndBtn.addEventListener('click', volleyEnd);
-  emergencyBtn.addEventListener('click', emergencyStop);
+  startBtns.forEach(b => b.addEventListener('click', start));
+  volleyEndBtns.forEach(b => b.addEventListener('click', volleyEnd));
+  emergencyBtns.forEach(b => b.addEventListener('click', emergencyStop));
   resetBtn.addEventListener('click', reset);
 
   function openRemote(){
     remote.classList.add('open');
-    remoteTab.setAttribute('aria-expanded','true');
-    remoteTab.style.display = 'none';
+    settingsBtn.setAttribute('aria-expanded','true');
   }
   function closeRemote(){
     remote.classList.remove('open');
-    remoteTab.setAttribute('aria-expanded','false');
-    remoteTab.style.display = 'flex';
+    settingsBtn.setAttribute('aria-expanded','false');
   }
-  remoteTab.addEventListener('click', openRemote);
+  settingsBtn.addEventListener('click', () => {
+    if(remote.classList.contains('open')) closeRemote(); else openRemote();
+  });
   remoteClose.addEventListener('click', closeRemote);
 
   // Init
