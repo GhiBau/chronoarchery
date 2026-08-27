@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ghibau.github.io/chronotir/sitemap.xml
+Sitemap: https://ghibau.github.io/chronoarchery/sitemap.xml
