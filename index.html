@@ -347,7 +347,7 @@
   </main>
 
   <footer class="site-footer">
-    <span>Dernière mise à jour : 27 août 2026</span>
+    <span>Dernière mise à jour : 14 septembre 2026</span>
     <span>
       <a href="https://github.com/GhiBau/chronoarchery/discussions" target="_blank" rel="noopener">💬 Une question ?</a>
       · Éditeur : Ghislain Baudichaud
@@ -430,8 +430,17 @@
   const DUEL_TOTAL_SHOTS = 6; // 3 flèches chacun, tir alterné
   const BEEP_DURATION = 1.0;
   const BEEP_GAP = 0.1;
+  const TICK_MS = 100;
+  // Au-delà de ce retard (s) sur une transition, on considère qu'on rattrape
+  // du temps écoulé pendant que l'onglet dormait : on enchaîne sans siffler.
+  const CATCHUP_SILENT_AFTER = 1.5;
+
   let totalDuration = 120;
   let remaining = 120;
+  // Chronométrage à l'horloge : le segment en cours est défini par sa durée
+  // et son horodatage de départ, jamais par une décrémentation cumulée.
+  let segmentDuration = 120;
+  let segmentStart = 0;
   let mode = 'ABCD';        // AB | ABC | ABCD | DUEL
   let side = 'AB';          // meaningful when mode === 'ABCD'
   let nextABCDStart = 'AB'; // alternates each completed AB/CD cycle
@@ -449,6 +458,9 @@
     if(!audioCtx){
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
+    // Un contexte créé puis mis en veille (onglet caché, écran éteint) reste
+    // suspendu au réveil : sans resume(), les signaux ne partent plus.
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
   }
 
@@ -546,65 +558,78 @@
     timeDisplay.textContent = formatTime(remaining);
   }
 
-  function handleZero(){
+  // Ouvre un nouveau segment. `startAt` permet de le caler sur la frontière
+  // théorique du segment précédent plutôt que sur l'instant du tick : c'est
+  // ce qui empêche la dérive de s'accumuler d'une phase à l'autre.
+  function beginSegment(duration, startAt){
+    segmentDuration = duration;
+    segmentStart = (startAt === undefined) ? performance.now() : startAt;
+    remaining = duration;
+  }
+
+  // Enchaîne sur le segment suivant. Renvoie false quand la séquence est finie.
+  function advance(audible){
+    const boundary = segmentStart + segmentDuration * 1000;
+
+    if(phase === 'approach'){
+      if(mode === 'DUEL') duelStep = 0;
+      beginSegment(mode === 'DUEL' ? DUEL_SHOT_DURATION : totalDuration, boundary);
+      setPhase('run');
+      if(audible) beep(WHISTLE_FREQ, 1);
+      return true;
+    }
+
+    if(mode === 'DUEL'){
+      if(duelStep < DUEL_TOTAL_SHOTS - 1){
+        duelStep++;
+        beginSegment(DUEL_SHOT_DURATION, boundary);
+        setPhase('run');
+        if(audible) beep(WHISTLE_FREQ, 1);
+        return true;
+      }
+      finishSequence(audible);
+      return false;
+    }
+
     if(mode === 'ABCD' && abcdLeg === 1){
       abcdLeg = 2;
       side = side === 'AB' ? 'CD' : 'AB';
-      updateLetters();
-      remaining = APPROACH_DURATION;
+      beginSegment(APPROACH_DURATION, boundary);
       setPhase('approach');
-      beep(WHISTLE_FREQ, 2);
-    } else {
-      finishSequence();
+      if(audible) beep(WHISTLE_FREQ, 2);
+      return true;
     }
-  }
 
-  function handleDuelZero(){
-    if(duelStep < DUEL_TOTAL_SHOTS - 1){
-      duelStep++;
-      remaining = DUEL_SHOT_DURATION;
-      setPhase('run');
-      beep(WHISTLE_FREQ, 1);
-    } else {
-      finishSequence();
-    }
+    finishSequence(audible);
+    return false;
   }
 
   function tick(){
-    if(phase === 'approach'){
-      remaining -= 0.1;
-      if(remaining <= 0){
-        if(mode === 'DUEL'){
-          duelStep = 0;
-          remaining = DUEL_SHOT_DURATION;
-        } else {
-          remaining = totalDuration;
-        }
-        setPhase('run');
-        beep(WHISTLE_FREQ, 1);
-      }
-      updateDisplay();
-      return;
-    }
+    if(timerId === null) return;
+    const now = performance.now();
+    let guard = 0;
 
-    remaining -= 0.1;
-    if(remaining <= 0){
+    while(true){
+      remaining = segmentDuration - (now - segmentStart) / 1000;
+      if(remaining > 0) break;
+      const lateBy = -remaining;
       remaining = 0;
       updateDisplay();
-      if(mode === 'DUEL') handleDuelZero(); else handleZero();
-      return;
+      if(!advance(lateBy < CATCHUP_SILENT_AFTER)) return;
+      if(++guard > 60) break;
     }
+
     if(mode !== 'DUEL' && phase === 'run' && remaining <= 30){
       setPhase('warn');
     }
     updateDisplay();
   }
 
-  function finishSequence(){
+  function finishSequence(audible){
     clearInterval(timerId);
     timerId = null;
     setPhase('stop');
-    beep(WHISTLE_FREQ, 3);
+    if(audible !== false) beep(WHISTLE_FREQ, 3);
     if(mode === 'ABCD'){
       nextABCDStart = nextABCDStart === 'AB' ? 'CD' : 'AB';
     }
@@ -622,18 +647,23 @@
       side = nextABCDStart;
       abcdLeg = 1;
     }
-    remaining = APPROACH_DURATION;
+    if(mode === 'DUEL') duelStep = 0;
+    beginSegment(APPROACH_DURATION);
     setPhase('approach');
     beep(WHISTLE_FREQ, 2);
     updateDisplay();
-    timerId = setInterval(tick, 100);
+    timerId = setInterval(tick, TICK_MS);
   }
 
   function volleyEnd(){
     if(!timerId) return;
+    // On antidate le départ pour que la frontière du segment tombe maintenant :
+    // la suite de la séquence repart de cet instant, sans décalage.
+    segmentStart = performance.now() - segmentDuration * 1000;
     remaining = 0;
     updateDisplay();
-    if(mode === 'DUEL') handleDuelZero(); else handleZero();
+    advance(true);
+    updateDisplay();
   }
 
   function emergencyStop(){
@@ -648,6 +678,8 @@
     clearInterval(timerId);
     timerId = null;
     remaining = (mode === 'DUEL') ? DUEL_SHOT_DURATION : totalDuration;
+    segmentDuration = remaining;
+    segmentStart = performance.now();
     abcdLeg = 1;
     duelStep = 0;
     setPhase('ready');
@@ -667,6 +699,7 @@
       starterRow.classList.toggle('visible', mode === 'DUEL');
       durationGroup.classList.toggle('hidden-group', mode === 'DUEL');
       remaining = (mode === 'DUEL') ? DUEL_SHOT_DURATION : totalDuration;
+      segmentDuration = remaining;
       syncReadyPreview();
       updateDisplay();
     });
@@ -698,6 +731,7 @@
         customDurationInput.style.display = 'none';
         totalDuration = parseInt(chip.dataset.duration, 10);
         remaining = totalDuration;
+        segmentDuration = totalDuration;
         updateDisplay();
       }
     });
@@ -708,6 +742,7 @@
     if(val > 0){
       totalDuration = val;
       remaining = totalDuration;
+      segmentDuration = totalDuration;
       updateDisplay();
     }
   });
@@ -716,12 +751,19 @@
     soundOn = !soundOn;
     soundToggle.classList.toggle('active', soundOn);
     soundToggle.textContent = soundOn ? '🔊 Bips activés' : '🔇 Bips coupés';
+    soundToggle.setAttribute('aria-pressed', String(soundOn));
   });
 
   startBtns.forEach(b => b.addEventListener('click', start));
   volleyEndBtns.forEach(b => b.addEventListener('click', volleyEnd));
   emergencyBtns.forEach(b => b.addEventListener('click', emergencyStop));
   resetBtn.addEventListener('click', reset);
+
+  // Au retour au premier plan, on recale immédiatement l'affichage sur
+  // l'horloge sans attendre le prochain tick bridé par le navigateur.
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden && timerId !== null) tick();
+  });
 
   function openRemote(){
     remote.classList.add('open');
@@ -737,6 +779,7 @@
   remoteClose.addEventListener('click', closeRemote);
 
   // Init
+  segmentStart = performance.now();
   setPhase('ready');
   syncReadyPreview();
   updateDisplay();
