@@ -229,6 +229,39 @@
     font-weight:700;font-size:26px;color:var(--state-red);
   }
 
+  /* Infobulles : le texte est lu depuis aria-label, déjà tenu à jour par le
+     script, donc le libellé suit l'état du bouton sans code supplémentaire.
+     Réservées au pointeur fin : sur tablette elles resteraient collées. */
+  .icon-btn{position:relative;}
+  @media (hover:hover) and (pointer:fine){
+    .icon-btn::after{
+      content:attr(aria-label);
+      position:absolute;
+      bottom:calc(100% + 10px);
+      left:50%;
+      transform:translateX(-50%) translateY(4px);
+      padding:6px 11px;
+      background:rgba(27,32,41,0.97);
+      border:1px solid var(--border);
+      border-radius:8px;
+      color:var(--ink);
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:15px;line-height:1.2;letter-spacing:0.02em;
+      white-space:nowrap;
+      opacity:0;pointer-events:none;
+      transition:opacity 0.15s ease, transform 0.15s ease;
+      z-index:12;
+    }
+    .icon-btn:not(:disabled):hover::after,
+    .icon-btn:focus-visible::after{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce){
+      .icon-btn::after{transition:none;}
+    }
+  }
+
   .chip:focus-visible,.btn:focus-visible{
     outline:2px solid var(--state-green);outline-offset:2px;
   }
