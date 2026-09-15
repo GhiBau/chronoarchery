@@ -104,7 +104,7 @@
 
   .light-column{
     flex:0 0 30%;
-    max-width:320px;
+    max-width:380px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:clamp(18px,4vh,44px);
   }
@@ -193,7 +193,8 @@
 
   /* Quick action bar (en filigrane : contours discrets, pas de disques pleins comme les feux) */
   .quick-actions{
-    display:flex;align-items:center;gap:10px;
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;gap:9px;
   }
   .icon-btn{
     width:var(--quickbar-h);height:var(--quickbar-h);
@@ -207,14 +208,15 @@
   .icon-btn:disabled{opacity:0.28;cursor:not-allowed;}
   .icon-btn:not(:disabled):hover{background:rgba(35,42,53,0.7);}
   .icon-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
-  .icon-settings,.icon-fs{
+  .icon-settings,.icon-fs,.icon-hv{
     width:44px;height:44px;
     color:var(--ink-dim);
     font-size:20px;
     background:rgba(35,42,53,0.4);
     border:2px solid var(--border);
   }
-  .icon-fs[aria-pressed="true"]{color:var(--ink);border-color:var(--ink-dim);}
+  .icon-fs[aria-pressed="true"],
+  .icon-hv[aria-pressed="true"]{color:var(--ink);border-color:var(--ink-dim);}
   .icon-red{border-color:var(--state-red);}
   .icon-yellow{border-color:var(--state-yellow);}
   .icon-green{border-color:var(--state-green);}
@@ -351,7 +353,7 @@
      colonne large, au détriment du décompte que ce mode cherche à agrandir. */
   body.hv .quick-actions{
     flex-direction:column;
-    gap:clamp(8px,1.8vh,16px);
+    gap:clamp(6px,1.5vh,14px);
     flex-wrap:nowrap;
   }
   body.hv .light-column{
@@ -401,7 +403,8 @@
   }
   body.hv-flood .icon-btn:not(:disabled):hover{background:rgba(16,20,26,0.2);}
   body.hv-flood .icon-settings,
-  body.hv-flood .icon-fs{color:rgba(16,20,26,0.82);}
+  body.hv-flood .icon-fs,
+  body.hv-flood .icon-hv{color:rgba(16,20,26,0.82);}
   body.hv-flood .icon-play{border-left-color:#10141a;}
   body.hv-flood .icon-square{background:#10141a;}
   body.hv-flood .icon-bang{color:#10141a;}
@@ -495,14 +498,14 @@
     .remote{width:calc(100vw - 24px);}
     .light-column{flex-basis:26%;gap:14px;}
     :root{--quickbar-h:46px;}
-    .icon-settings,.icon-fs{width:36px;height:36px;font-size:16px;}
+    .icon-settings,.icon-fs,.icon-hv{width:36px;height:36px;font-size:16px;}
     .quick-actions{gap:6px;flex-wrap:wrap;justify-content:center;}
     .doc{font-size:16px;}
   }
 
   @media (max-height:480px){
     :root{--quickbar-h:40px;--footer-h:28px;}
-    .icon-settings,.icon-fs{width:30px;height:30px;font-size:13px;}
+    .icon-settings,.icon-fs,.icon-hv{width:30px;height:30px;font-size:13px;}
     .site-header{padding:3px 14px;}
     .lamp{width:min(13vh,13vw);height:min(13vh,13vw);}
     .light-column{gap:8px;}
@@ -526,6 +529,7 @@
       </div>
       <div class="quick-actions">
         <button class="icon-btn icon-settings" id="settingsBtn" aria-expanded="false" aria-controls="remote" aria-label="Réglages">⚙</button>
+        <button class="icon-btn icon-hv" id="hvBtn" aria-pressed="false" aria-label="Affichage haute visibilité">◐</button>
         <button class="icon-btn icon-fs" id="panelBtn" aria-pressed="false" aria-label="Mode panneau plein écran">⛶</button>
         <button class="icon-btn icon-red js-emergency" id="emergencyBtnQuick" disabled aria-label="Arrêt d'urgence"><span class="icon-bang">!</span></button>
         <button class="icon-btn icon-yellow js-volleyend" id="volleyEndBtnQuick" disabled aria-label="Fin de volée"><span class="icon-square"></span></button>
@@ -993,6 +997,7 @@
   const customDurationInput = document.getElementById('customDuration');
   const soundToggle = document.getElementById('soundToggle');
   const hvToggle = document.getElementById('hvToggle');
+  const hvBtn = document.getElementById('hvBtn');
   const wakeToggle = document.getElementById('wakeToggle');
   const wakeNote = document.getElementById('wakeNote');
   const shareBtn = document.getElementById('shareBtn');
@@ -1149,12 +1154,20 @@
     hvToggle.classList.toggle('active', hvMode);
     hvToggle.setAttribute('aria-pressed', String(hvMode));
     hvToggle.textContent = hvMode ? '🔆 Haute visibilité' : '◻ Affichage standard';
+    // Le bouton de la barre partage l'état du basculeur de la télécommande.
+    // Son aria-label sert aussi de texte d'infobulle.
+    hvBtn.setAttribute('aria-pressed', String(hvMode));
+    hvBtn.setAttribute('aria-label',
+      hvMode ? 'Revenir à l\'affichage standard' : 'Affichage haute visibilité');
   }
 
-  hvToggle.addEventListener('click', () => {
+  function toggleHighVisibility(){
     hvMode = !hvMode;
     updateHighVisibility();
-  });
+  }
+
+  hvToggle.addEventListener('click', toggleHighVisibility);
+  hvBtn.addEventListener('click', toggleHighVisibility);
 
   /* ---------- Mode panneau (plein écran + écran allumé) ---------- */
 
