@@ -1,0 +1,59 @@
+{
+  "name": "ChronoArchery — Chronomètre de tir à l'arc",
+  "short_name": "ChronoArchery",
+  "description": "Panneau de chronométrage pour le tir à l'arc : feux, décompte, séquences AB, ABC, AB/CD et duel en tir alterné, avec des durées conformes au règlement FFTA.",
+  "lang": "fr-FR",
+  "dir": "ltr",
+  "id": "/chronoarchery/",
+  "scope": "./",
+  "start_url": "./?panneau=1",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#12161c",
+  "theme_color": "#12161c",
+  "categories": ["sports", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AB/CD, 120 secondes",
+      "short_name": "AB/CD 120s",
+      "description": "Double départ avec rotation automatique, volée de trois flèches.",
+      "url": "./?seq=abcd&duree=120&panneau=1",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Volée de six flèches, 240 secondes",
+      "short_name": "AB 240s",
+      "description": "Départ simple, volée de six flèches en extérieur.",
+      "url": "./?seq=ab&duree=240&panneau=1",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Duel en tir alterné",
+      "short_name": "Duel",
+      "description": "Trois flèches chacun, vingt secondes par flèche.",
+      "url": "./?seq=duel&depart=a&panneau=1",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

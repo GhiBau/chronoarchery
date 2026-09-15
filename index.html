@@ -8,11 +8,16 @@
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <meta name="theme-color" content="#12161c">
 <link rel="canonical" href="https://ghibau.github.io/chronoarchery/">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ChronoArchery">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312161c'/%3E%3Ccircle cx='16' cy='7' r='4.5' fill='%23c24b4b'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23d9b23f'/%3E%3Ccircle cx='16' cy='25' r='4.5' fill='%233f9b6f'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ChronoArchery">
 <meta property="og:title" content="ChronoArchery – Chronomètre et panneau de tir pour le tir à l'arc">
-<meta property="og:description" content="Panneau de chronométrage gratuit pour le tir à l'arc : séquences AB / ABC / AB-CD / duel, feux et signaux sonores, durées conformes au règlement FFTA 2027. Sur tablette, sans installation.">
+<meta property="og:description" content="Panneau de chronométrage gratuit pour le tir à l'arc : séquences AB / ABC / AB-CD / duel, feux et signaux sonores, durées conformes au règlement FFTA. Sur tablette, sans installation.">
 <meta property="og:url" content="https://ghibau.github.io/chronoarchery/">
 <meta property="og:image" content="https://ghibau.github.io/chronoarchery/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -337,6 +342,75 @@
   .starter-row{display:none;margin-top:10px;}
   .starter-row.visible{display:block;}
 
+  /* ---------- Mode haute visibilité ----------
+     Le fond de la zone panneau prend la couleur de l'état et le texte passe
+     en sombre. Les feux disparaissent : ils feraient doublon avec l'aplat,
+     et la place récupérée profite au décompte. */
+  body.hv .traffic-light{display:none;}
+  /* Pile verticale : une rangée horizontale de cinq boutons imposerait une
+     colonne large, au détriment du décompte que ce mode cherche à agrandir. */
+  body.hv .quick-actions{
+    flex-direction:column;
+    gap:clamp(8px,1.8vh,16px);
+    flex-wrap:nowrap;
+  }
+  body.hv .light-column{
+    flex:0 0 auto;max-width:none;
+    padding:0 clamp(10px,1.8vw,26px);
+  }
+  body.hv .time-display{font-size:min(62vh,44vw);}
+  body.hv .seq-letter{font-size:min(13vh,9vw);}
+  body.hv .page{transition:background-color 0.2s ease;}
+
+  /* Infobulles déportées sur le côté : au-dessus, elles masqueraient le
+     bouton précédent de la pile. */
+  @media (hover:hover) and (pointer:fine){
+    body.hv .icon-btn::after{
+      bottom:auto;top:50%;left:calc(100% + 10px);
+      transform:translateY(-50%) translateX(-4px);
+    }
+    body.hv .icon-btn:not(:disabled):hover::after,
+    body.hv .icon-btn:focus-visible::after{
+      transform:translateY(-50%) translateX(0);
+    }
+  }
+
+  body.hv-flood[data-phase="approach"],
+  body.hv-flood[data-phase="stop"],
+  body.hv-flood[data-phase="halted"]{--flood:#d04a4a;}
+  body.hv-flood[data-phase="run"]{--flood:#3aa876;}
+  body.hv-flood[data-phase="warn"]{--flood:#e3bd3a;}
+
+  body.hv-flood .page{background:var(--flood);}
+  body.hv-flood .site-title,
+  body.hv-flood .time-display{color:#10141a;}
+  body.hv-flood .site-subtitle{color:rgba(16,20,26,0.72);}
+  body.hv-flood .seq-letter{color:rgba(16,20,26,0.26);}
+  body.hv-flood .seq-letter.lit{color:#10141a;text-shadow:none;}
+  body.hv-flood .site-footer{
+    color:rgba(16,20,26,0.68);
+    border-top-color:rgba(16,20,26,0.22);
+  }
+  body.hv-flood .site-footer a{
+    color:rgba(16,20,26,0.85);
+    border-bottom-color:rgba(16,20,26,0.32);
+  }
+  body.hv-flood .icon-btn{
+    background:rgba(16,20,26,0.10);
+    border-color:rgba(16,20,26,0.38);
+  }
+  body.hv-flood .icon-btn:not(:disabled):hover{background:rgba(16,20,26,0.2);}
+  body.hv-flood .icon-settings,
+  body.hv-flood .icon-fs{color:rgba(16,20,26,0.82);}
+  body.hv-flood .icon-play{border-left-color:#10141a;}
+  body.hv-flood .icon-square{background:#10141a;}
+  body.hv-flood .icon-bang{color:#10141a;}
+  body.hv-flood .icon-btn::after{
+    background:rgba(16,20,26,0.94);
+    border-color:rgba(16,20,26,0.5);
+    color:var(--ink);
+  }
+
   /* ---------- Contenu éditorial (indexable) ---------- */
   .doc{
     max-width:760px;
@@ -635,6 +709,13 @@
     bout de quelques minutes, en plein milieu d'une volée.
   </p>
   <p>
+    Le basculeur <strong>Affichage</strong> propose un mode <strong>haute visibilité</strong> :
+    au lieu d'allumer une pastille de couleur, tout le fond de l'écran passe au rouge, au vert ou
+    au jaune, et le décompte s'affiche en sombre par-dessus, nettement plus grand. Un aplat se lit
+    de bien plus loin qu'un feu, et résiste mieux au plein soleil ou à un écran vu de biais. Au
+    repos, l'écran reste sombre : il ne se colore que lorsqu'un signal est actif.
+  </p>
+  <p>
     Le décompte se cale sur l'horloge du système et non sur une simple boucle d'affichage, donc il
     ne dérive pas, et il se recale tout seul si l'onglet est passé en arrière-plan. Les signaux
     sonores sont générés par le navigateur : pensez à monter le volume et, sur mobile, à désactiver
@@ -668,6 +749,7 @@
         <tr><td>duree</td><td>Un nombre de secondes entre 5 et 600. Une valeur qui ne correspond à aucun préréglage bascule sur la durée personnalisée.</td></tr>
         <tr><td>depart</td><td><code>a</code> ou <code>b</code> : désigne l'archer qui commence, en mode duel.</td></tr>
         <tr><td>son</td><td><code>0</code> coupe les signaux sonores, <code>1</code> les active.</td></tr>
+        <tr><td>affichage</td><td><code>hv</code> active la haute visibilité, <code>standard</code> revient à l'affichage à feux.</td></tr>
         <tr><td>ecran</td><td><code>0</code> laisse l'appareil se mettre en veille, <code>1</code> garde l'écran allumé.</td></tr>
         <tr><td>panneau</td><td><code>1</code> ouvre directement en mode panneau, sans le contenu de cette page.</td></tr>
       </tbody>
@@ -774,6 +856,12 @@
   <div class="control-group">
     <span class="control-label">Son</span>
     <button class="chip toggle active" id="soundToggle" aria-pressed="true">🔊 Bips activés</button>
+  </div>
+
+  <div class="control-group">
+    <span class="control-label">Affichage</span>
+    <button class="chip toggle" id="hvToggle" aria-pressed="false">◻ Affichage standard</button>
+    <span class="control-note">En haute visibilité, tout le fond prend la couleur de l'état.</span>
   </div>
 
   <div class="control-group">
@@ -904,6 +992,7 @@
   const durationGroup = document.getElementById('durationGroup');
   const customDurationInput = document.getElementById('customDuration');
   const soundToggle = document.getElementById('soundToggle');
+  const hvToggle = document.getElementById('hvToggle');
   const wakeToggle = document.getElementById('wakeToggle');
   const wakeNote = document.getElementById('wakeNote');
   const shareBtn = document.getElementById('shareBtn');
@@ -1049,6 +1138,24 @@
     updateWakeUI();
   }
 
+  /* ---------- Mode haute visibilité ---------- */
+
+  let hvMode = false;
+
+  function updateHighVisibility(){
+    document.body.classList.toggle('hv', hvMode);
+    // Pas d'aplat au repos : l'écran ne se colore que lorsqu'il y a un signal.
+    document.body.classList.toggle('hv-flood', hvMode && phase !== 'ready');
+    hvToggle.classList.toggle('active', hvMode);
+    hvToggle.setAttribute('aria-pressed', String(hvMode));
+    hvToggle.textContent = hvMode ? '🔆 Haute visibilité' : '◻ Affichage standard';
+  }
+
+  hvToggle.addEventListener('click', () => {
+    hvMode = !hvMode;
+    updateHighVisibility();
+  });
+
   /* ---------- Mode panneau (plein écran + écran allumé) ---------- */
 
   let panelMode = false;
@@ -1134,6 +1241,10 @@
     // Le clignotement distingue un affichage figé d'un décompte en cours.
     timeDisplay.classList.toggle('pulse', newPhase === 'stop' || halted);
     phase = newPhase;
+    // La phase est exposée sur le body : c'est le CSS qui décide de la
+    // couleur d'aplat en haute visibilité, pas le script.
+    document.body.dataset.phase = newPhase;
+    updateHighVisibility();
     updateLetters();
 
     const running = (newPhase === 'approach' || newPhase === 'run' || newPhase === 'warn');
@@ -1421,6 +1532,11 @@
     if(son === '0' && soundOn) soundToggle.click();
     if(son === '1' && !soundOn) soundToggle.click();
 
+    const affichage = (p.get('affichage') || '').toLowerCase();
+    if((affichage === 'hv') !== hvMode && (affichage === 'hv' || affichage === 'standard')){
+      hvToggle.click();
+    }
+
     // Appliqué avant le mode panneau : sinon celui-ci prendrait un verrou
     // d'écran que le lien demande justement de ne pas prendre.
     const ecran = p.get('ecran');
@@ -1440,6 +1556,7 @@
       p.set('duree', String(totalDuration));
     }
     if(!soundOn) p.set('son', '0');
+    if(hvMode) p.set('affichage', 'hv');
     if(!keepAwake) p.set('ecran', '0');
     if(panelMode) p.set('panneau', '1');
     return base + '?' + p.toString();
@@ -1499,6 +1616,18 @@
   applyUrlParams();
   updateWakeUI();
 })();
+</script>
+<script>
+// Enregistrement du service worker : c'est lui qui permet l'installation sur
+// l'écran d'accueil et le démarrage sans réseau. Après le chargement, pour ne
+// pas concurrencer l'affichage du panneau.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      // Échec silencieux : la page fonctionne parfaitement sans.
+    });
+  });
+}
 </script>
 </body>
 </html>
